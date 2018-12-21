@@ -8,12 +8,20 @@ def main():
         parse_listing_page(get_url(page))
 
 
+def get_request(url):
+    try:
+        return requests.get(url)
+    except Exception:
+        time.sleep(3)
+        return get_request(url)
+
+
 def get_url(page):
     return "http://handras.hu/page/" + str(page) 
 
 
 def get_page(url):
-    return BeautifulSoup(requests.get(url).text, "lxml")
+    return BeautifulSoup(get_request(url).text, "lxml")
 
 
 def parse_article_page(link):
@@ -35,7 +43,7 @@ def remove_elements(content):
 
 def parse_listing_page(url):
     for link in get_page(url).select("h2.entry__title a"):
-        parse_article_page(requests.get(link.get("href")).text)
+        parse_article_page(get_request(link.get("href")).text)
         time.sleep(1)
 
 
