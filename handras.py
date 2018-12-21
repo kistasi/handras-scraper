@@ -5,7 +5,7 @@ import time
 
 def main():
     for page in range(0, 365):
-        parse_article_page(parse_listing_page(get_url(page)))
+        parse_listing_page(get_url(page))
 
 
 def get_url(page):
