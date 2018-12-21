@@ -25,7 +25,7 @@ def get_page(url):
 
 
 def parse_article_page(link):
-    article = BeautifulSoup(link)
+    article = BeautifulSoup(link, "lxml")
     print(article.find("h2").text)
     print(article.find("time", datetime=True)["datetime"])
     print(remove_elements(article.find("div", class_="entry__body")))
