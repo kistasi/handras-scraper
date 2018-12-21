@@ -25,11 +25,10 @@ def get_page(url):
 
 
 def parse_article_page(link):
-    if link is not None:
-        article = BeautifulSoup(link)
-        print(article.find("h2").text)
-        print(article.find("time", datetime=True)["datetime"])
-        print(remove_elements(article.find("div", class_="entry__body")))
+    article = BeautifulSoup(link)
+    print(article.find("h2").text)
+    print(article.find("time", datetime=True)["datetime"])
+    print(remove_elements(article.find("div", class_="entry__body")))
 
 
 def remove_elements(content):
