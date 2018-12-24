@@ -1,9 +1,30 @@
 from bs4 import BeautifulSoup
 import requests
 import time
+import sqlite3
+import os
+
+
+def get_db_name():
+    return "handras.db"
+
+
+def delete_db_file():
+    if os.path.isfile(get_db_name()):
+        os.remove(get_db_name())
+
+
+def get_sqlite_connection():
+    return sqlite3.connect("handras.db")
+
+
+def create_db_schema():
+    delete_db_file()
+    get_sqlite_connection().execute("CREATE TABLE IF NOT EXISTS articles (Title Varchar, Date Varchar, Body Varchar);")
 
 
 def main():
+    create_db_schema()
     for page in range(0, 365):
         parse_listing_page(get_url(page))
 
@@ -26,9 +47,15 @@ def get_page(url):
 
 def parse_article_page(link):
     article = BeautifulSoup(link, "lxml")
-    print(article.find("h2").text)
-    print(article.find("time", datetime=True)["datetime"])
-    print(remove_elements(article.find("div", class_="entry__body")))
+    title = article.find("h2").text
+    date = article.find("time", datetime=True)["datetime"]
+    body = remove_elements(article.find("div", class_="entry__body"))
+
+    connection = get_sqlite_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("INSERT INTO articles VALUES ('{0}', '{1}', '{2}');".format(title, date, body))
+    connection.commit()
 
 
 def remove_elements(content):
