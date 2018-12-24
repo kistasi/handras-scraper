@@ -20,7 +20,18 @@ def get_sqlite_connection():
 
 def create_db_schema():
     delete_db_file()
-    get_sqlite_connection().execute("CREATE TABLE IF NOT EXISTS articles (Title Varchar, Date Varchar, Body Varchar);")
+    get_sqlite_connection().executescript(
+        """
+        CREATE TABLE IF NOT EXISTS articles (Title Varchar, Date Varchar, Body Varchar);
+        CREATE TABLE IF NOT EXISTS error_log (Message Varchar);
+        """
+    )
+
+
+def execute_sql(sql):
+    connection = get_sqlite_connection()
+    connection.cursor().execute(sql)
+    connection.commit()
 
 
 def main():
@@ -32,9 +43,8 @@ def main():
 def get_request(url):
     try:
         return requests.get(url)
-    except Exception:
-        time.sleep(3)
-        return get_request(url)
+    except requests.exceptions.RequestException as e:
+        execute_sql("INSERT INTO error_log VALUES ('Request error: {}');".format(e))
 
 
 def get_url(page):
@@ -50,12 +60,9 @@ def parse_article_page(link):
     title = article.find("h2").text
     date = article.find("time", datetime=True)["datetime"]
     body = remove_elements(article.find("div", class_="entry__body"))
+    body = str(body).replace("'", "")
 
-    connection = get_sqlite_connection()
-    cursor = connection.cursor()
-
-    cursor.execute("INSERT INTO articles VALUES ('{0}', '{1}', '{2}');".format(title, date, body))
-    connection.commit()
+    execute_sql("INSERT INTO articles VALUES ('{0}', '{1}', '{2}');".format(title, date, body))
 
 
 def remove_elements(content):
