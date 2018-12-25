@@ -21,7 +21,7 @@ def drop_db():
 
 
 def get_db_connection():
-    return sqlite3.connect("handras.db")
+    return sqlite3.connect(get_db_name())
 
 
 def create_db_schema():
