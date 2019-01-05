@@ -57,16 +57,22 @@ def get_page(url):
 
 def parse_article_page(link):
     article = BeautifulSoup(link, "lxml")
-    title = article.find("h2").text
-    date = article.find("time", datetime=True)["datetime"]
-    body = remove_unusable_elements(article.find("div", class_="entry__body"))
-    body = str(body).replace("'", "")
 
-    execute_sql("INSERT INTO articles VALUES ('{0}', '{1}', '{2}');".format(title, date, body))
+    execute_sql(
+        "INSERT INTO articles VALUES ('{0}', '{1}', '{2}');".format(
+            article.find("h2").text,
+            article.find("time", datetime=True)["datetime"],
+            remove_unusable_elements(article.find("div", class_="entry__body")).text.replace("'", "")
+        )
+    )
+
+
+def get_unusable_elements():
+    return ["essb_links"]
 
 
 def remove_unusable_elements(content):
-    for element in ["essb_links"]:
+    for element in get_unusable_elements():
         element_in_soup = content.find("div", class_=element)
         if element_in_soup is not None:
             element_in_soup.decompose()
