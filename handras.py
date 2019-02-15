@@ -7,7 +7,7 @@ import os
 
 def main():
     create_db_schema()
-    for page in range(0, 365):
+    for page in range(0, 369):
         parse_list_page(build_url(page))
 
 
